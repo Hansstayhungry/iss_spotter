@@ -39,13 +39,26 @@ const fetchCoordsByIP = function(ip, callback) {
     } else {
       const latitude = parsedBody.latitude;
       const longitude = parsedBody.longitude;
+      // save lat and long as in a object
       const coords = {Latitude: latitude, Longitude: longitude};
-      callback(null, data);
+      callback(null, coords);
     }
   });
 };
 
 
-const fetchISSFlyOverTimes = function(coords)
+const fetchISSFlyOverTimes = function(coords, callback) {
+  request(`https://iss-flyover.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`, function(error, response, body) {
+    if (error) {
+      callback(error, null);
+      return;
+    } else if (response.statusCode != 200) {
+      callback(error(JSON.parse(body)), null);
+    } else {
+      const flyOver = JSON.parse(body).response;
+      callback(null, flyOver);
+    }
+  })
+}
 
 module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
